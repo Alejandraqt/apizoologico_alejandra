@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router(); //manejador de rutas de express
 const animalSchema = require("../models/animalModel");
+
 //Nuevo animal
 router.post("/animalitos", (req, res) => {
     const animal = animalSchema(req.body);
@@ -12,10 +13,36 @@ router.post("/animalitos", (req, res) => {
 
 //Consultar todos los animales
 router.get("/animalitos", (req, res) => {
-    animalSchema.find({edad:{$eq:4}})
+    animalSchema.find()
         .then((data) => res.json(data))
         .catch((error) => res.json({ message: error }));
 });
 
+//Modificar el nombre de un animal por su id
+router.put("/animals/:id", (req, res) => {
+    const { id } = req.params;
+    const { nombre, edad, tipo, fecha } = req.body;
+    animalSchema
+        .updateOne({ _id: id }, {
+            $set: { nombre, edad, tipo, fecha }
+        })
+        .then((data) => res.json(data))
+        .catch((error) => res.json({ message: error }));
+});
+
+//Eliminar un animal por su id
+router.delete("/animals/:id", (req, res) => {
+    const { id } = req.params;
+    animalSchema
+        .findByIdAndDelete(id)
+        .then((data) => {
+            res.json(data);
+        })
+        .catch((error) => {
+            res.json({ message: error });
+        });
+});
+
+//En get
 //animalSchema.find({edad:{$gt:2}}) ---> {edad:{$gt:2} es eq a select * from animals where edad > 2
 module.exports = router;
